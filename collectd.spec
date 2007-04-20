@@ -1,6 +1,6 @@
 Summary:	Collects system information in RRD files
 Name:		collectd
-Version:	3.11.2
+Version:	3.11.4
 Release:	%mkrel 1
 License:	GPL
 Group:		Monitoring
@@ -72,5 +72,3 @@ chrpath -d %{buildroot}%{_libdir}/%{name}/apache.so
 %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/%{name}/%{name}.conf
 %{_mandir}/man1/%{name}.1.bz2
 %{_mandir}/man5/%{name}.conf.5.bz2
-
-
