@@ -1,6 +1,6 @@
 Summary:	Collects system information in RRD files
 Name:		collectd
-Version:	3.11.4
+Version:	3.11.5
 Release:	%mkrel 1
 License:	GPL
 Group:		Monitoring
@@ -29,7 +29,7 @@ generate graphs of the collected data.
 %build
 ./configure \
 	--prefix=%{_prefix} \
-	--libdir=%{_prefix}/%{_lib} \
+	--libdir=%{_libdir} \
 	--with-rrdtool \
 	--with-libpthread \
 	--with-libcurl \
