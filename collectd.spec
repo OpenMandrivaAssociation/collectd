@@ -70,5 +70,5 @@ chrpath -d %{buildroot}%{_libdir}/%{name}/apache.so
 %attr(755,root,root) %{_libdir}/%{name}/*.so
 %dir %{_var}/lib/%{name}
 %config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/%{name}/%{name}.conf
-%{_mandir}/man1/%{name}.1.bz2
-%{_mandir}/man5/%{name}.conf.5.bz2
+%{_mandir}/man1/%{name}.*
+%{_mandir}/man5/%{name}.conf.*
