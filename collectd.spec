@@ -1,8 +1,8 @@
 Summary:	Collects system information in RRD files
 Name:		collectd
-Version:	4.0.0
+Version:	4.2.0
 Release:	%mkrel 1
-License:	GPL
+License:	GPLv2+
 Group:		Monitoring
 Url:		http://collectd.org/
 Source0:	http://collectd.org/files/%{name}-%{version}.tar.bz2
