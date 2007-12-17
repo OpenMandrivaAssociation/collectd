@@ -15,7 +15,6 @@ BuildRequires:	lm_sensors-devel
 BuildRequires:	rrdtool-devel
 BuildRequires:	chrpath
 Requires(pre):	rpm-helper
-BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
 
 %description
 The collectd daemon collects information about the system 
