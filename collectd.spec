@@ -103,7 +103,7 @@ libtoolize --copy --force; aclocal; autoconf; automake --foreign --add-missing -
     --with-libpthread=%{_prefix} \
     --with-libstatgrab=%{_prefix} \
     
-%make
+make
 
 %install
 rm -rf %{buildroot}
