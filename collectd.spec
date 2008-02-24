@@ -47,6 +47,7 @@ then be used to generate graphs of the collected data.
 perl -pi -e "s|/lib\b|/%{_lib}|g" configure.in
 
 %build
+%serverbuild
 rm -f configure
 libtoolize --copy --force; aclocal; autoconf; automake --foreign --add-missing --copy
 
