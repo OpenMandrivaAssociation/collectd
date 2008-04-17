@@ -1,11 +1,11 @@
 Summary:	Collects system information in RRD files
 Name:		collectd
-Version:	4.3.0
+Version:	4.3.2
 Release:	%mkrel 1
 License:	GPLv2+
 Group:		Monitoring
 Url:		http://collectd.org/
-Source0:	http://collectd.org/files/collectd-%{version}.tar.gz
+Source0:	http://collectd.org/files/collectd-%{version}.tar.bz2
 Source1:	%{name}-initscript
 Source2:	%{name}.logrotate
 Patch0:		collectd-path_fixes.diff
