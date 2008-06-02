@@ -111,7 +111,7 @@ rm -rf %{buildroot}
 
 install -d %{buildroot}%{_sysconfdir}/logrotate.d
 install -d %{buildroot}%{_initrddir}
-install -d %{buildroot}%{_localstatedir}/%{name}
+install -d %{buildroot}%{_localstatedir}/lib/%{name}
 install -d %{buildroot}/var/run/%{name}
 install -d %{buildroot}/var/log/%{name}
 
@@ -192,7 +192,7 @@ rm -rf %{buildroot}
 %attr(0644,root,root) %{_libdir}/collectd/types.db
 %attr(0644,root,root) %{_prefix}/lib/perl5/vendor_perl/*/Collectd.pm
 %attr(0644,root,root) %{_prefix}/lib/perl5/vendor_perl/*/Collectd/Unixsock.pm
-%dir %{_localstatedir}/%{name}
+%dir %{_localstatedir}/lib/%{name}
 %dir /var/run/%{name}
 %dir /var/log/%{name}
 %attr(0644,root,root) %ghost /var/log/%{name}/%{name}.log
