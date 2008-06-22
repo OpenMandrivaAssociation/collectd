@@ -1,7 +1,7 @@
 Summary:	Collects system information in RRD files
 Name:		collectd
 Version:	4.4.1
-Release:	%mkrel 0
+Release:	%mkrel 1
 License:	GPLv2+
 Group:		Monitoring
 URL:		http://collectd.org/
