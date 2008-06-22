@@ -1,19 +1,22 @@
 Summary:	Collects system information in RRD files
 Name:		collectd
-Version:	4.3.3
-Release:	%mkrel 1
+Version:	4.4.1
+Release:	%mkrel 0
 License:	GPLv2+
 Group:		Monitoring
-Url:		http://collectd.org/
-Source0:	http://collectd.org/files/collectd-%{version}.tar.bz2
+URL:		http://collectd.org/
+Source0:	http://collectd.org/files/collectd-%{version}.tar.gz
 Source1:	%{name}-initscript
 Source2:	%{name}.logrotate
 Patch0:		collectd-path_fixes.diff
+Patch1:		collectd-nut-2.2.x_fix.diff
+Patch2:		collectd-libstatgrab_fix.diff
 BuildRequires:	bison
 BuildRequires:	curl-devel
 BuildRequires:	flex
 BuildRequires:	iptables-devel
 BuildRequires:	libhal-devel
+BuildRequires:	libltdl-devel
 BuildRequires:	libstatgrab-devel
 BuildRequires:	libtool
 BuildRequires:	libxml2-devel
@@ -21,6 +24,7 @@ BuildRequires:	lm_sensors-devel
 BuildRequires:	mysql-devel
 BuildRequires:	net-snmp-devel
 BuildRequires:	nut-devel
+BuildRequires:	OpenIPMI-devel
 BuildRequires:	oping-devel
 BuildRequires:	pcap-devel
 BuildRequires:	perl-devel
@@ -39,6 +43,8 @@ then be used to generate graphs of the collected data.
 
 %setup -q
 %patch0 -p1
+%patch1 -p0
+%patch2 -p0
 
 %{_bindir}/find . -name Makefile.am -o -name Makefile.in | \
   %{_bindir}/xargs -t %{__perl} -pi -e 's/\-Werror//g'
@@ -49,12 +55,29 @@ perl -pi -e "s|/lib\b|/%{_lib}|g" configure.in
 %build
 %serverbuild
 rm -f configure
-libtoolize --copy --force; aclocal; autoconf; automake --foreign --add-missing --copy
+libtoolize --copy --force --ltdl; aclocal; autoconf; automake --foreign --add-missing --copy; autoheader
 
-%configure2_5x \
+./configure \
+    --host=%{_host} --build=%{_build} \
+    --target=%{_target_platform} \
+    --program-prefix=%{?_program_prefix} \
+    --prefix=%{_prefix} \
+    --exec-prefix=%{_exec_prefix} \
+    --bindir=%{_bindir} \
+    --sbindir=%{_sbindir} \
+    --sysconfdir=%{_sysconfdir} \
+    --datadir=%{_datadir} \
+    --includedir=%{_includedir} \
+    --libdir=%{_libdir} \
+    --libexecdir=%{_libexecdir} \
+    --localstatedir=/var/lib \
+    --sharedstatedir=%{_sharedstatedir} \
+    --mandir=%{_mandir} \
+    --infodir=%{_infodir} \
     --enable-apache --with-libcurl=%{_prefix} \
     --enable-apcups \
     --disable-apple_sensors \
+    --enable-ascent \
     --enable-battery \
     --enable-cpu \
     --enable-cpufreq \
@@ -68,6 +91,7 @@ libtoolize --copy --force; aclocal; autoconf; automake --foreign --add-missing -
     --enable-hddtemp \
     --enable-interface \
     --enable-iptables --with-libiptc=%{_prefix} \
+    --enable-ipmi \
     --disable-ipvs \
     --enable-irq \
     --disable-libvirt \
@@ -86,6 +110,7 @@ libtoolize --copy --force; aclocal; autoconf; automake --foreign --add-missing -
     --enable-nut --with-libupsclient=%{_prefix} \
     --enable-perl --with-libperl=%{_prefix} --with-perl-bindings="INSTALLDIRS=vendor" \
     --enable-ping --with-liboping=%{_prefix} \
+    --enable-powerdns \
     --enable-processes \
     --enable-rrdtool --with-rrdtool=%{_prefix} \
     --enable-sensors--with-lm-sensors=%{_prefix} \
@@ -93,17 +118,20 @@ libtoolize --copy --force; aclocal; autoconf; automake --foreign --add-missing -
     --enable-snmp --with-libnetsnmp \
     --enable-swap \
     --enable-syslog \
+    --enable-tail \
     --disable-tape \
     --enable-tcpconns \
+    --enable-teamspeak2 \
     --enable-unixsock \
     --enable-users \
     --enable-uuid \
+    --enable-vmem \
     --enable-vserver \
     --enable-wireless \
     --enable-xmms --with-libxmms=%{_prefix} \
     --with-libpthread=%{_prefix} \
     --with-libstatgrab=%{_prefix} \
-    
+
 make
 
 %install
@@ -111,7 +139,7 @@ rm -rf %{buildroot}
 
 install -d %{buildroot}%{_sysconfdir}/logrotate.d
 install -d %{buildroot}%{_initrddir}
-install -d %{buildroot}%{_localstatedir}/lib/%{name}
+install -d %{buildroot}/var/lib/%{name}
 install -d %{buildroot}/var/run/%{name}
 install -d %{buildroot}/var/log/%{name}
 
@@ -147,6 +175,7 @@ rm -rf %{buildroot}
 %dir %{_libdir}/collectd
 %attr(0755,root,root) %{_libdir}/collectd/apache.so
 %attr(0755,root,root) %{_libdir}/collectd/apcups.so
+%attr(0755,root,root) %{_libdir}/collectd/ascent.so
 %attr(0755,root,root) %{_libdir}/collectd/battery.so
 %attr(0755,root,root) %{_libdir}/collectd/cpufreq.so
 %attr(0755,root,root) %{_libdir}/collectd/cpu.so
@@ -159,6 +188,7 @@ rm -rf %{buildroot}
 %attr(0755,root,root) %{_libdir}/collectd/exec.so
 %attr(0755,root,root) %{_libdir}/collectd/hddtemp.so
 %attr(0755,root,root) %{_libdir}/collectd/interface.so
+%attr(0755,root,root) %{_libdir}/collectd/ipmi.so
 %attr(0755,root,root) %{_libdir}/collectd/iptables.so
 %attr(0755,root,root) %{_libdir}/collectd/irq.so
 %attr(0755,root,root) %{_libdir}/collectd/load.so
@@ -175,6 +205,7 @@ rm -rf %{buildroot}
 %attr(0755,root,root) %{_libdir}/collectd/nut.so
 %attr(0755,root,root) %{_libdir}/collectd/perl.so
 %attr(0755,root,root) %{_libdir}/collectd/ping.so
+%attr(0755,root,root) %{_libdir}/collectd/powerdns.so
 %attr(0755,root,root) %{_libdir}/collectd/processes.so
 %attr(0755,root,root) %{_libdir}/collectd/rrdtool.so
 %attr(0755,root,root) %{_libdir}/collectd/sensors.so
@@ -182,17 +213,20 @@ rm -rf %{buildroot}
 %attr(0755,root,root) %{_libdir}/collectd/snmp.so
 %attr(0755,root,root) %{_libdir}/collectd/swap.so
 %attr(0755,root,root) %{_libdir}/collectd/syslog.so
+%attr(0755,root,root) %{_libdir}/collectd/tail.so
 %attr(0755,root,root) %{_libdir}/collectd/tcpconns.so
+%attr(0755,root,root) %{_libdir}/collectd/teamspeak2.so
 %attr(0755,root,root) %{_libdir}/collectd/unixsock.so
 %attr(0755,root,root) %{_libdir}/collectd/users.so
 %attr(0755,root,root) %{_libdir}/collectd/uuid.so
 %attr(0755,root,root) %{_libdir}/collectd/wireless.so
+%attr(0755,root,root) %{_libdir}/collectd/vmem.so
 %attr(0755,root,root) %{_libdir}/collectd/vserver.so
 %attr(0755,root,root) %{_libdir}/collectd/xmms.so
 %attr(0644,root,root) %{_libdir}/collectd/types.db
 %attr(0644,root,root) %{_prefix}/lib/perl5/vendor_perl/*/Collectd.pm
 %attr(0644,root,root) %{_prefix}/lib/perl5/vendor_perl/*/Collectd/Unixsock.pm
-%dir %{_localstatedir}/lib/%{name}
+%dir /var/lib/%{name}
 %dir /var/run/%{name}
 %dir /var/log/%{name}
 %attr(0644,root,root) %ghost /var/log/%{name}/%{name}.log
