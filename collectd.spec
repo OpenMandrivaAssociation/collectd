@@ -29,7 +29,6 @@ BuildRequires:	oping-devel
 BuildRequires:	pcap-devel
 BuildRequires:	perl-devel
 BuildRequires:	rrdtool-devel
-BuildRequires:	xmms-devel
 BuildConflicts:	git
 Requires(pre):	rpm-helper
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
@@ -43,7 +42,6 @@ then be used to generate graphs of the collected data.
 
 %setup -q
 %patch0 -p1
-%patch1 -p0
 %patch2 -p0
 
 %{_bindir}/find . -name Makefile.am -o -name Makefile.in | \
@@ -128,7 +126,7 @@ libtoolize --copy --force --ltdl; aclocal; autoconf; automake --foreign --add-mi
     --enable-vmem \
     --enable-vserver \
     --enable-wireless \
-    --enable-xmms --with-libxmms=%{_prefix} \
+    --disable-xmms \
     --with-libpthread=%{_prefix} \
     --with-libstatgrab=%{_prefix} \
 
@@ -222,7 +220,6 @@ rm -rf %{buildroot}
 %attr(0755,root,root) %{_libdir}/collectd/wireless.so
 %attr(0755,root,root) %{_libdir}/collectd/vmem.so
 %attr(0755,root,root) %{_libdir}/collectd/vserver.so
-%attr(0755,root,root) %{_libdir}/collectd/xmms.so
 %attr(0644,root,root) %{_libdir}/collectd/types.db
 %attr(0644,root,root) %{_prefix}/lib/perl5/vendor_perl/*/Collectd.pm
 %attr(0644,root,root) %{_prefix}/lib/perl5/vendor_perl/*/Collectd/Unixsock.pm
