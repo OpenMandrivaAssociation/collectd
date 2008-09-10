@@ -1,6 +1,6 @@
 Summary:	Collects system information in RRD files
 Name:		collectd
-Version:	4.4.2
+Version:	4.5.0
 Release:	%mkrel 1
 License:	GPLv2+
 Group:		Monitoring
