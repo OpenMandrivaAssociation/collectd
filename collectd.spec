@@ -1,6 +1,6 @@
 Summary:	Collects system information in RRD files
 Name:		collectd
-Version:	4.5.0
+Version:	4.5.1
 Release:	%mkrel 1
 License:	GPLv2+
 Group:		Monitoring
@@ -11,10 +11,13 @@ Source2:	%{name}.logrotate
 Patch0:		collectd-path_fixes.diff
 Patch1:		collectd-nut-2.2.x_fix.diff
 Patch2:		collectd-libstatgrab_fix.diff
+Patch3:		collectd-4.5.1-perl_fix.diff
+Patch4:		collectd-4.5.1-ping_fix.diff
 BuildRequires:	bison
 BuildRequires:	curl-devel
 BuildRequires:	flex
 BuildRequires:	iptables-devel
+BuildRequires:	libesmtp-devel
 BuildRequires:	libhal-devel
 BuildRequires:	libltdl-devel
 BuildRequires:	libstatgrab-devel
@@ -24,10 +27,11 @@ BuildRequires:	lm_sensors-devel
 BuildRequires:	mysql-devel
 BuildRequires:	net-snmp-devel
 BuildRequires:	nut-devel
-BuildRequires:	OpenIPMI-devel
+BuildRequires:	openipmi-devel
 BuildRequires:	oping-devel
 BuildRequires:	pcap-devel
 BuildRequires:	perl-devel
+BuildRequires:	postgresql-devel
 BuildRequires:	rrdtool-devel
 BuildConflicts:	git
 Requires(pre):	rpm-helper
@@ -43,17 +47,35 @@ then be used to generate graphs of the collected data.
 %setup -q
 %patch0 -p1
 %patch2 -p0
+%patch3 -p0
+%patch4 -p0
 
 %{_bindir}/find . -name Makefile.am -o -name Makefile.in | \
   %{_bindir}/xargs -t %{__perl} -pi -e 's/\-Werror//g'
 
 # lib64 fix
-perl -pi -e "s|/lib\b|/%{_lib}|g" configure.in
+perl -pi -e "s|/lib\b|/%{_lib}|g" configure*
 
 %build
 %serverbuild
 rm -f configure
 libtoolize --copy --force --ltdl; aclocal; autoconf; automake --foreign --add-missing --copy; autoheader
+
+# hack...
+export PKG_CONFIG_PATH="./pkg-config"
+mkdir -p pkg-config
+cat > pkg-config/pthread.pc << EOF
+prefix=%{_prefix}
+exec_prefix=%{_prefix}
+libdir=%{_libdir}
+includedir=%{_includedir}
+
+Name: pthread
+Description: Pthread
+Version: 0.0.0
+Libs: -L\${libdir} -lpthread
+Cflags: -I\${includedir}
+EOF
 
 ./configure \
     --host=%{_host} --build=%{_build} \
@@ -108,6 +130,7 @@ libtoolize --copy --force --ltdl; aclocal; autoconf; automake --foreign --add-mi
     --enable-nut --with-libupsclient=%{_prefix} \
     --enable-perl --with-libperl=%{_prefix} --with-perl-bindings="INSTALLDIRS=vendor" \
     --enable-ping --with-liboping=%{_prefix} \
+    --enable-postgresql \
     --enable-powerdns \
     --enable-processes \
     --enable-rrdtool --with-rrdtool=%{_prefix} \
@@ -184,6 +207,7 @@ rm -rf %{buildroot}
 %attr(0755,root,root) %{_libdir}/collectd/email.so
 %attr(0755,root,root) %{_libdir}/collectd/entropy.so
 %attr(0755,root,root) %{_libdir}/collectd/exec.so
+%attr(0755,root,root) %{_libdir}/collectd/filecount.so
 %attr(0755,root,root) %{_libdir}/collectd/hddtemp.so
 %attr(0755,root,root) %{_libdir}/collectd/interface.so
 %attr(0755,root,root) %{_libdir}/collectd/ipmi.so
@@ -199,10 +223,13 @@ rm -rf %{buildroot}
 %attr(0755,root,root) %{_libdir}/collectd/network.so
 %attr(0755,root,root) %{_libdir}/collectd/nfs.so
 %attr(0755,root,root) %{_libdir}/collectd/nginx.so
+%attr(0755,root,root) %{_libdir}/collectd/notify_desktop.so
+%attr(0755,root,root) %{_libdir}/collectd/notify_email.so
 %attr(0755,root,root) %{_libdir}/collectd/ntpd.so
 %attr(0755,root,root) %{_libdir}/collectd/nut.so
 %attr(0755,root,root) %{_libdir}/collectd/perl.so
 %attr(0755,root,root) %{_libdir}/collectd/ping.so
+%attr(0755,root,root) %{_libdir}/collectd/postgresql.so
 %attr(0755,root,root) %{_libdir}/collectd/powerdns.so
 %attr(0755,root,root) %{_libdir}/collectd/processes.so
 %attr(0755,root,root) %{_libdir}/collectd/rrdtool.so
@@ -214,6 +241,7 @@ rm -rf %{buildroot}
 %attr(0755,root,root) %{_libdir}/collectd/tail.so
 %attr(0755,root,root) %{_libdir}/collectd/tcpconns.so
 %attr(0755,root,root) %{_libdir}/collectd/teamspeak2.so
+%attr(0755,root,root) %{_libdir}/collectd/thermal.so
 %attr(0755,root,root) %{_libdir}/collectd/unixsock.so
 %attr(0755,root,root) %{_libdir}/collectd/users.so
 %attr(0755,root,root) %{_libdir}/collectd/uuid.so
@@ -223,6 +251,8 @@ rm -rf %{buildroot}
 %attr(0644,root,root) %{_libdir}/collectd/types.db
 %attr(0644,root,root) %{_prefix}/lib/perl5/vendor_perl/*/Collectd.pm
 %attr(0644,root,root) %{_prefix}/lib/perl5/vendor_perl/*/Collectd/Unixsock.pm
+%dir %{_datadir}/collectd
+%attr(0644,root,root) %{_datadir}/collectd/postgresql_default.conf
 %dir /var/lib/%{name}
 %dir /var/run/%{name}
 %dir /var/log/%{name}
@@ -238,3 +268,4 @@ rm -rf %{buildroot}
 %{_mandir}/man5/collectd-snmp.5*
 %{_mandir}/man5/collectd-unixsock.5*
 %{_mandir}/man5/types.db.5*
+
