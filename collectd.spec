@@ -20,6 +20,7 @@ BuildRequires:	iptables-devel
 BuildRequires:	libesmtp-devel
 BuildRequires:	libhal-devel
 BuildRequires:	libltdl-devel
+BuildRequires:	libnotify-devel
 BuildRequires:	libstatgrab-devel
 BuildRequires:	libtool
 BuildRequires:	libxml2-devel
