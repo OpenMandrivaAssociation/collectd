@@ -16,12 +16,15 @@ Patch0:		collectd-path_fixes.diff
 Patch1:		collectd-nut-2.2.x_fix.diff
 Patch2:		collectd-libstatgrab_fix.diff
 Patch3:		collectd-4.5.1-perl_fix.diff
+BuildConflicts:	git
 BuildRequires:	bison
 BuildRequires:	curl-devel
 BuildRequires:	flex
 BuildRequires:	iptables-devel
 BuildRequires:	libdbi-devel
 BuildRequires:	libesmtp-devel
+BuildRequires:	libgcrypt-devel
+BuildRequires:	libgnutls-devel
 BuildRequires:	libhal-devel
 BuildRequires:	libltdl-devel
 BuildRequires:	libnotify-devel
@@ -38,7 +41,6 @@ BuildRequires:	pcap-devel
 BuildRequires:	perl-devel
 BuildRequires:	postgresql-devel
 BuildRequires:	rrdtool-devel
-BuildConflicts:	git
 Requires(pre):	rpm-helper
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 
