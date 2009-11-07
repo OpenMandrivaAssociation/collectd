@@ -4,8 +4,8 @@
 
 Summary:	Collects system information in RRD files
 Name:		collectd
-Version:	4.8.0
-Release:	%mkrel 3
+Version:	4.8.1
+Release:	%mkrel 1
 License:	GPLv2+
 Group:		Monitoring
 URL:		http://collectd.org/
@@ -270,6 +270,7 @@ rm -rf %{buildroot}
 %attr(0755,root,root) %{_libdir}/collectd/powerdns.so
 %attr(0755,root,root) %{_libdir}/collectd/processes.so
 %attr(0755,root,root) %{_libdir}/collectd/protocols.so
+%attr(0755,root,root) %{_libdir}/collectd/rrdcached.so
 %attr(0755,root,root) %{_libdir}/collectd/rrdtool.so
 %attr(0755,root,root) %{_libdir}/collectd/sensors.so
 %attr(0755,root,root) %{_libdir}/collectd/serial.so
