@@ -4,7 +4,7 @@
 
 Summary:	Collects system information in RRD files
 Name:		collectd
-Version:	4.8.1
+Version:	4.9.0
 Release:	%mkrel 1
 License:	GPLv2+
 Group:		Monitoring
@@ -225,6 +225,7 @@ rm -rf %{buildroot}
 %attr(0755,root,root) %{_libdir}/collectd/battery.so
 %attr(0755,root,root) %{_libdir}/collectd/bind.so
 %attr(0755,root,root) %{_libdir}/collectd/conntrack.so
+%attr(0755,root,root) %{_libdir}/collectd/contextswitch.so
 %attr(0755,root,root) %{_libdir}/collectd/cpufreq.so
 %attr(0755,root,root) %{_libdir}/collectd/cpu.so
 %attr(0755,root,root) %{_libdir}/collectd/csv.so
@@ -247,6 +248,7 @@ rm -rf %{buildroot}
 %attr(0755,root,root) %{_libdir}/collectd/logfile.so
 %attr(0755,root,root) %{_libdir}/collectd/madwifi.so
 %attr(0755,root,root) %{_libdir}/collectd/match_empty_counter.so
+%attr(0755,root,root) %{_libdir}/collectd/match_hashed.so
 %attr(0755,root,root) %{_libdir}/collectd/match_regex.so
 %attr(0755,root,root) %{_libdir}/collectd/match_timediff.so
 %attr(0755,root,root) %{_libdir}/collectd/match_value.so
@@ -270,6 +272,7 @@ rm -rf %{buildroot}
 %attr(0755,root,root) %{_libdir}/collectd/powerdns.so
 %attr(0755,root,root) %{_libdir}/collectd/processes.so
 %attr(0755,root,root) %{_libdir}/collectd/protocols.so
+%attr(0755,root,root) %{_libdir}/collectd/python.so
 %attr(0755,root,root) %{_libdir}/collectd/rrdcached.so
 %attr(0755,root,root) %{_libdir}/collectd/rrdtool.so
 %attr(0755,root,root) %{_libdir}/collectd/sensors.so
@@ -281,6 +284,7 @@ rm -rf %{buildroot}
 %attr(0755,root,root) %{_libdir}/collectd/tail.so
 %attr(0755,root,root) %{_libdir}/collectd/target_notification.so
 %attr(0755,root,root) %{_libdir}/collectd/target_replace.so
+%attr(0755,root,root) %{_libdir}/collectd/target_scale.so
 %attr(0755,root,root) %{_libdir}/collectd/target_set.so
 %attr(0755,root,root) %{_libdir}/collectd/tcpconns.so
 %attr(0755,root,root) %{_libdir}/collectd/teamspeak2.so
@@ -295,6 +299,7 @@ rm -rf %{buildroot}
 %attr(0755,root,root) %{_libdir}/collectd/vserver.so
 %attr(0755,root,root) %{_libdir}/collectd/write_http.so
 %attr(0644,root,root) %{_prefix}/lib/perl5/vendor_perl/*/Collectd.pm
+%attr(0644,root,root) %{_prefix}/lib/perl5/vendor_perl/*/Collectd/Plugins/OpenVZ.pm
 %attr(0644,root,root) %{_prefix}/lib/perl5/vendor_perl/*/Collectd/Unixsock.pm
 %dir %{_datadir}/collectd
 %attr(0644,root,root) %{_datadir}/collectd/postgresql_default.conf
@@ -312,6 +317,7 @@ rm -rf %{buildroot}
 %{_mandir}/man5/collectd-exec.5*
 %{_mandir}/man5/collectd-java.5*
 %{_mandir}/man5/collectd-perl.5*
+%{_mandir}/man5/collectd-python.5*
 %{_mandir}/man5/collectd-snmp.5*
 %{_mandir}/man5/collectd-unixsock.5*
 %{_mandir}/man5/types.db.5*
@@ -326,3 +332,4 @@ rm -rf %{buildroot}
 %{_includedir}/collectd/lcc_features.h
 %{_libdir}/pkgconfig/libcollectdclient.pc
 %{_libdir}/libcollectdclient.la
+
