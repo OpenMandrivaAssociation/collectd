@@ -30,6 +30,7 @@ BuildRequires:	libltdl-devel
 BuildRequires:	libnotify-devel
 BuildRequires:	libstatgrab-devel
 BuildRequires:	libtool
+BuildRequires:	libvirt-devel
 BuildRequires:	libxml2-devel
 BuildRequires:	lm_sensors-devel
 BuildRequires:	mysql-devel
@@ -39,6 +40,7 @@ BuildRequires:	openipmi-devel
 BuildRequires:	oping-devel
 BuildRequires:	pcap-devel
 BuildRequires:	perl-devel
+BuildRequires:	python-devel
 BuildRequires:	postgresql-devel
 BuildRequires:	rrdtool-devel
 Requires(pre):	rpm-helper
@@ -138,7 +140,7 @@ EOF
     --enable-ipmi \
     --disable-ipvs \
     --enable-irq \
-    --disable-libvirt \
+    --enable-libvirt \
     --enable-load \
     --enable-logfile \
     --enable-mbmon \
@@ -244,6 +246,7 @@ rm -rf %{buildroot}
 %attr(0755,root,root) %{_libdir}/collectd/ipmi.so
 %attr(0755,root,root) %{_libdir}/collectd/iptables.so
 %attr(0755,root,root) %{_libdir}/collectd/irq.so
+%attr(0755,root,root) %{_libdir}/collectd/libvirt.so
 %attr(0755,root,root) %{_libdir}/collectd/load.so
 %attr(0755,root,root) %{_libdir}/collectd/logfile.so
 %attr(0755,root,root) %{_libdir}/collectd/madwifi.so
