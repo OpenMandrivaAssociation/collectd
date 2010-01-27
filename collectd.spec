@@ -4,7 +4,7 @@
 
 Summary:	Collects system information in RRD files
 Name:		collectd
-Version:	4.9.0
+Version:	4.9.1
 Release:	%mkrel 1
 License:	GPLv2+
 Group:		Monitoring
@@ -103,7 +103,7 @@ Libs: -L\${libdir} -lpthread
 Cflags: -I\${includedir}
 EOF
 
-./configure \
+CFLAGS="%{optflags} -fPIC" ./configure \
     --host=%{_host} --build=%{_build} \
     --target=%{_target_platform} \
     --program-prefix=%{?_program_prefix} \
@@ -180,7 +180,7 @@ EOF
     --with-libstatgrab=%{_prefix} \
     --disable-static \
 
-make
+ %make
 
 %install
 rm -rf %{buildroot}
@@ -302,6 +302,7 @@ rm -rf %{buildroot}
 %attr(0755,root,root) %{_libdir}/collectd/vserver.so
 %attr(0755,root,root) %{_libdir}/collectd/write_http.so
 %attr(0644,root,root) %{_prefix}/lib/perl5/vendor_perl/*/Collectd.pm
+%attr(0644,root,root) %{_prefix}/lib/perl5/vendor_perl/*/Collectd/Plugins/Monitorus.pm
 %attr(0644,root,root) %{_prefix}/lib/perl5/vendor_perl/*/Collectd/Plugins/OpenVZ.pm
 %attr(0644,root,root) %{_prefix}/lib/perl5/vendor_perl/*/Collectd/Unixsock.pm
 %dir %{_datadir}/collectd
