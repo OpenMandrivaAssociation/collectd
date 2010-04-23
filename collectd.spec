@@ -43,6 +43,7 @@ BuildRequires:	perl-devel
 BuildRequires:	python-devel
 BuildRequires:	postgresql-devel
 BuildRequires:	rrdtool-devel
+BuildRequires:	libmemcached-devel
 Requires(pre):	rpm-helper
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 
