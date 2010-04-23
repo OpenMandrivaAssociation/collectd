@@ -74,7 +74,7 @@ This package contains the development headers.
 %setup -q
 %patch0 -p1
 %patch2 -p0
-%patch3 -p0
+%patch3 -p0 -b .perl
 
 %{_bindir}/find . -name Makefile.am -o -name Makefile.in | \
   %{_bindir}/xargs -t %{__perl} -pi -e 's/\-Werror//g'
@@ -85,7 +85,7 @@ perl -pi -e "s|/lib\b|/%{_lib}|g" configure*
 %build
 %serverbuild
 rm -f configure
-libtoolize --copy --force --ltdl; aclocal; autoconf; automake --foreign --add-missing --copy; autoheader
+autoreconf -fi
 
 # hack...
 export PKG_CONFIG_PATH="./pkg-config"
@@ -103,23 +103,14 @@ Libs: -L\${libdir} -lpthread
 Cflags: -I\${includedir}
 EOF
 
-CFLAGS="%{optflags} -fPIC" ./configure \
-    --host=%{_host} --build=%{_build} \
-    --target=%{_target_platform} \
-    --program-prefix=%{?_program_prefix} \
-    --prefix=%{_prefix} \
-    --exec-prefix=%{_exec_prefix} \
-    --bindir=%{_bindir} \
-    --sbindir=%{_sbindir} \
-    --sysconfdir=%{_sysconfdir} \
-    --datadir=%{_datadir} \
-    --includedir=%{_includedir} \
-    --libdir=%{_libdir} \
-    --libexecdir=%{_libexecdir} \
+export CFLAGS="%{optflags} -fPIC"
+
+
+%configure2_5x \
     --localstatedir=/var/lib \
-    --sharedstatedir=%{_sharedstatedir} \
-    --mandir=%{_mandir} \
-    --infodir=%{_infodir} \
+    --without-included-ltdl \
+    --with-ltdl-include=%{_includedir} \
+    --with-ltdl-lib=%{_libdir} \
     --enable-apache --with-libcurl=%{_prefix} \
     --enable-apcups \
     --disable-apple_sensors \
@@ -180,7 +171,7 @@ CFLAGS="%{optflags} -fPIC" ./configure \
     --with-libstatgrab=%{_prefix} \
     --disable-static \
 
- %make
+%make LIBLTDL=%{_libdir}/libltdl.la
 
 %install
 rm -rf %{buildroot}
@@ -191,7 +182,7 @@ install -d %{buildroot}/var/lib/%{name}
 install -d %{buildroot}/var/run/%{name}
 install -d %{buildroot}/var/log/%{name}
 
-%makeinstall_std
+%makeinstall_std LIBLTDL=%{_libdir}/libltdl.la
 
 install -m0755 %{SOURCE1} %{buildroot}%{_initrddir}/%{name}
 install -m0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
@@ -256,6 +247,7 @@ rm -rf %{buildroot}
 %attr(0755,root,root) %{_libdir}/collectd/match_timediff.so
 %attr(0755,root,root) %{_libdir}/collectd/match_value.so
 %attr(0755,root,root) %{_libdir}/collectd/mbmon.so
+%attr(0755,root,root) %{_libdir}/collectd/memcachec.so
 %attr(0755,root,root) %{_libdir}/collectd/memcached.so
 %attr(0755,root,root) %{_libdir}/collectd/memory.so
 %attr(0755,root,root) %{_libdir}/collectd/multimeter.so
