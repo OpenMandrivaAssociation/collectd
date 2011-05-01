@@ -4,18 +4,19 @@
 
 Summary:	Collects system information in RRD files
 Name:		collectd
-Version:	4.9.2
-Release:	%mkrel 9
+Version:	5.0.0
+Release:	%mkrel 1
 License:	GPLv2+
 Group:		Monitoring
 URL:		http://collectd.org/
 Source0:	http://collectd.org/files/collectd-%{version}.tar.bz2
 Source1:	%{name}-initscript
 Source2:	%{name}.logrotate
-Patch0:		collectd-path_fixes.diff
-Patch1:		collectd-nut-2.2.x_fix.diff
-Patch2:		collectd-libstatgrab_fix.diff
 Patch3:		collectd-4.5.1-perl_fix.diff
+Patch101:	collectd-4.10.3-werror.patch
+Patch102:	collectd-4.10.3-lt.patch
+Patch103:	collectd-4.10.1-noowniptc.patch
+Patch104:	collectd-4.10.2-libnotify-0.7.patch
 BuildConflicts:	git
 BuildRequires:	bison
 BuildRequires:	curl-devel
@@ -44,6 +45,9 @@ BuildRequires:	python-devel
 BuildRequires:	postgresql-devel
 BuildRequires:	rrdtool-devel
 BuildRequires:	libmemcached-devel
+BuildRequires:	iptables-iptc-devel
+BuildRequires:	iptables-ip6tc-devel
+BuildRequires:	iptables-ip4tc-devel
 Requires(pre):	rpm-helper
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 
@@ -71,108 +75,29 @@ The collectd daemon collects information about the system it is running on.
 This package contains the development headers.
 
 %prep
-
 %setup -q
-%patch0 -p1
-%patch2 -p0
-%patch3 -p0 -b .perl
-
-%{_bindir}/find . -name Makefile.am -o -name Makefile.in | \
-  %{_bindir}/xargs -t %{__perl} -pi -e 's/\-Werror//g'
-
-# lib64 fix
-perl -pi -e "s|/lib\b|/%{_lib}|g" configure*
+%patch101 -p1
+%patch102 -p1
+%patch103 -p1
+%patch104 -p0
+%patch3 -p0
 
 %build
-%serverbuild
-rm -f configure
 autoreconf -fi
-
-# hack...
-export PKG_CONFIG_PATH="./pkg-config"
-mkdir -p pkg-config
-cat > pkg-config/pthread.pc << EOF
-prefix=%{_prefix}
-exec_prefix=%{_prefix}
-libdir=%{_libdir}
-includedir=%{_includedir}
-
-Name: pthread
-Description: Pthread
-Version: 0.0.0
-Libs: -L\${libdir} -lpthread
-Cflags: -I\${includedir}
-EOF
-
-export CFLAGS="%{optflags} -fPIC"
-
-
+%serverbuild
+pushd libltdl
+%before_configure
+popd
 %configure2_5x \
+    --with-libperl=%{_prefix} --with-perl-bindings="INSTALLDIRS=vendor" \
     --localstatedir=/var/lib \
     --without-included-ltdl \
     --with-ltdl-include=%{_includedir} \
     --with-ltdl-lib=%{_libdir} \
-    --enable-apache --with-libcurl=%{_prefix} \
-    --enable-apcups \
-    --disable-apple_sensors \
-    --enable-ascent \
-    --enable-battery \
-    --enable-cpu \
-    --enable-cpufreq \
-    --enable-csv \
-    --enable-df \
-    --enable-disk \
-    --enable-dns --with-libpcap=%{_prefix} \
-    --enable-email \
-    --enable-entropy \
-    --enable-exec \
-    --enable-hddtemp \
-    --enable-interface \
-    --enable-iptables --with-libiptc=%{_prefix} \
-    --enable-ipmi \
-    --disable-ipvs \
-    --enable-irq \
-    --enable-libvirt \
-    --enable-load \
-    --enable-logfile \
-    --enable-mbmon \
-    --enable-memcached \
-    --enable-memory \
-    --enable-multimeter \
-    --enable-mysql --with-libmysql=%{_prefix} \
-    --disable-netlink \
-    --enable-network \
-    --enable-nfs \
-    --enable-nginx --with-libcurl=%{_prefix} \
-    --enable-ntpd \
-    --enable-nut \
-    --enable-perl --with-libperl=%{_prefix} --with-perl-bindings="INSTALLDIRS=vendor" \
-    --enable-ping --with-liboping=%{_prefix} \
-    --enable-postgresql \
-    --enable-powerdns \
-    --enable-processes \
-    --enable-rrdtool --with-rrdtool=%{_prefix} \
-    --enable-sensors--with-lm-sensors=%{_prefix} \
-    --enable-serial \
-    --enable-snmp --with-libnetsnmp \
-    --enable-swap \
-    --enable-syslog \
-    --enable-tail \
-    --disable-tape \
-    --enable-tcpconns \
-    --enable-teamspeak2 \
-    --enable-unixsock \
-    --enable-users \
-    --enable-uuid \
-    --enable-vmem \
-    --enable-vserver \
-    --enable-wireless \
     --disable-xmms \
-    --with-libpthread=%{_prefix} \
-    --with-libstatgrab=%{_prefix} \
-    --disable-static \
+    --disable-static
 
-%make LIBLTDL=%{_libdir}/libltdl.la
+%make
 
 %install
 rm -rf %{buildroot}
@@ -206,110 +131,112 @@ rm -rf %{buildroot}
 %files
 %defattr(644,root,root,755)
 %doc AUTHORS COPYING README ChangeLog TODO
-%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/collectd.conf
-%attr(0644,root,root) %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
-%attr(0755,root,root) %{_initrddir}/%{name}
-%attr(0755,root,root) %{_bindir}/collectd-nagios
-%attr(0755,root,root) %{_sbindir}/collectd
-%attr(0755,root,root) %{_sbindir}/collectdmon
+%config(noreplace) %{_sysconfdir}/collectd.conf
+%config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
+%{_initrddir}/%{name}
+%{_bindir}/collectd-nagios
+%{_bindir}/collectdctl
+%{_sbindir}/collectd
+%{_sbindir}/collectdmon
 %dir %{_libdir}/collectd
-%attr(0755,root,root) %{_libdir}/collectd/apache.so
-%attr(0755,root,root) %{_libdir}/collectd/apcups.so
-%attr(0755,root,root) %{_libdir}/collectd/ascent.so
-%attr(0755,root,root) %{_libdir}/collectd/battery.so
-%attr(0755,root,root) %{_libdir}/collectd/bind.so
-%attr(0755,root,root) %{_libdir}/collectd/conntrack.so
-%attr(0755,root,root) %{_libdir}/collectd/contextswitch.so
-%attr(0755,root,root) %{_libdir}/collectd/cpufreq.so
-%attr(0755,root,root) %{_libdir}/collectd/cpu.so
-%attr(0755,root,root) %{_libdir}/collectd/csv.so
-%attr(0755,root,root) %{_libdir}/collectd/curl.so
-%attr(0755,root,root) %{_libdir}/collectd/dbi.so
-%attr(0755,root,root) %{_libdir}/collectd/df.so
-%attr(0755,root,root) %{_libdir}/collectd/disk.so
-%attr(0755,root,root) %{_libdir}/collectd/dns.so
-%attr(0755,root,root) %{_libdir}/collectd/email.so
-%attr(0755,root,root) %{_libdir}/collectd/entropy.so
-%attr(0755,root,root) %{_libdir}/collectd/exec.so
-%attr(0755,root,root) %{_libdir}/collectd/filecount.so
-%attr(0755,root,root) %{_libdir}/collectd/fscache.so
-%attr(0755,root,root) %{_libdir}/collectd/hddtemp.so
-%attr(0755,root,root) %{_libdir}/collectd/interface.so
-%attr(0755,root,root) %{_libdir}/collectd/ipmi.so
-%attr(0755,root,root) %{_libdir}/collectd/iptables.so
-%attr(0755,root,root) %{_libdir}/collectd/irq.so
-%attr(0755,root,root) %{_libdir}/collectd/libvirt.so
-%attr(0755,root,root) %{_libdir}/collectd/load.so
-%attr(0755,root,root) %{_libdir}/collectd/logfile.so
-%attr(0755,root,root) %{_libdir}/collectd/madwifi.so
-%attr(0755,root,root) %{_libdir}/collectd/match_empty_counter.so
-%attr(0755,root,root) %{_libdir}/collectd/match_hashed.so
-%attr(0755,root,root) %{_libdir}/collectd/match_regex.so
-%attr(0755,root,root) %{_libdir}/collectd/match_timediff.so
-%attr(0755,root,root) %{_libdir}/collectd/match_value.so
-%attr(0755,root,root) %{_libdir}/collectd/mbmon.so
-%attr(0755,root,root) %{_libdir}/collectd/memcachec.so
-%attr(0755,root,root) %{_libdir}/collectd/memcached.so
-%attr(0755,root,root) %{_libdir}/collectd/memory.so
-%attr(0755,root,root) %{_libdir}/collectd/multimeter.so
-%attr(0755,root,root) %{_libdir}/collectd/mysql.so
-%attr(0755,root,root) %{_libdir}/collectd/network.so
-%attr(0755,root,root) %{_libdir}/collectd/nfs.so
-%attr(0755,root,root) %{_libdir}/collectd/nginx.so
-%attr(0755,root,root) %{_libdir}/collectd/notify_desktop.so
-%attr(0755,root,root) %{_libdir}/collectd/notify_email.so
-%attr(0755,root,root) %{_libdir}/collectd/ntpd.so
-%attr(0755,root,root) %{_libdir}/collectd/nut.so
-%attr(0755,root,root) %{_libdir}/collectd/olsrd.so
-%attr(0755,root,root) %{_libdir}/collectd/openvpn.so
-%attr(0755,root,root) %{_libdir}/collectd/perl.so
-%attr(0755,root,root) %{_libdir}/collectd/ping.so
-%attr(0755,root,root) %{_libdir}/collectd/postgresql.so
-%attr(0755,root,root) %{_libdir}/collectd/powerdns.so
-%attr(0755,root,root) %{_libdir}/collectd/processes.so
-%attr(0755,root,root) %{_libdir}/collectd/protocols.so
-%attr(0755,root,root) %{_libdir}/collectd/python.so
-%attr(0755,root,root) %{_libdir}/collectd/rrdcached.so
-%attr(0755,root,root) %{_libdir}/collectd/rrdtool.so
-%attr(0755,root,root) %{_libdir}/collectd/sensors.so
-%attr(0755,root,root) %{_libdir}/collectd/serial.so
-%attr(0755,root,root) %{_libdir}/collectd/snmp.so
-%attr(0755,root,root) %{_libdir}/collectd/swap.so
-%attr(0755,root,root) %{_libdir}/collectd/syslog.so
-%attr(0755,root,root) %{_libdir}/collectd/table.so
-%attr(0755,root,root) %{_libdir}/collectd/tail.so
-%attr(0755,root,root) %{_libdir}/collectd/target_notification.so
-%attr(0755,root,root) %{_libdir}/collectd/target_replace.so
-%attr(0755,root,root) %{_libdir}/collectd/target_scale.so
-%attr(0755,root,root) %{_libdir}/collectd/target_set.so
-%attr(0755,root,root) %{_libdir}/collectd/tcpconns.so
-%attr(0755,root,root) %{_libdir}/collectd/teamspeak2.so
-%attr(0755,root,root) %{_libdir}/collectd/ted.so
-%attr(0755,root,root) %{_libdir}/collectd/thermal.so
-%attr(0755,root,root) %{_libdir}/collectd/unixsock.so
-%attr(0755,root,root) %{_libdir}/collectd/uptime.so
-%attr(0755,root,root) %{_libdir}/collectd/users.so
-%attr(0755,root,root) %{_libdir}/collectd/uuid.so
-%attr(0755,root,root) %{_libdir}/collectd/wireless.so
-%attr(0755,root,root) %{_libdir}/collectd/vmem.so
-%attr(0755,root,root) %{_libdir}/collectd/vserver.so
-%attr(0755,root,root) %{_libdir}/collectd/write_http.so
-%attr(0644,root,root) %{_prefix}/lib/perl5/vendor_perl/*/Collectd.pm
-%attr(0644,root,root) %{_prefix}/lib/perl5/vendor_perl/*/Collectd/Plugins/Monitorus.pm
-%attr(0644,root,root) %{_prefix}/lib/perl5/vendor_perl/*/Collectd/Plugins/OpenVZ.pm
-%attr(0644,root,root) %{_prefix}/lib/perl5/vendor_perl/*/Collectd/Unixsock.pm
+%{_libdir}/collectd/apache.so
+%{_libdir}/collectd/apcups.so
+%{_libdir}/collectd/ascent.so
+%{_libdir}/collectd/battery.so
+%{_libdir}/collectd/bind.so
+%{_libdir}/collectd/conntrack.so
+%{_libdir}/collectd/contextswitch.so
+%{_libdir}/collectd/cpufreq.so
+%{_libdir}/collectd/cpu.so
+%{_libdir}/collectd/csv.so
+%{_libdir}/collectd/curl.so
+%{_libdir}/collectd/dbi.so
+%{_libdir}/collectd/df.so
+%{_libdir}/collectd/disk.so
+%{_libdir}/collectd/dns.so
+%{_libdir}/collectd/email.so
+%{_libdir}/collectd/entropy.so
+%{_libdir}/collectd/exec.so
+%{_libdir}/collectd/filecount.so
+%{_libdir}/collectd/fscache.so
+%{_libdir}/collectd/hddtemp.so
+%{_libdir}/collectd/interface.so
+%{_libdir}/collectd/ipmi.so
+%{_libdir}/collectd/iptables.so
+%{_libdir}/collectd/irq.so
+%{_libdir}/collectd/libvirt.so
+%{_libdir}/collectd/load.so
+%{_libdir}/collectd/logfile.so
+%{_libdir}/collectd/madwifi.so
+%{_libdir}/collectd/match_empty_counter.so
+%{_libdir}/collectd/match_hashed.so
+%{_libdir}/collectd/match_regex.so
+%{_libdir}/collectd/match_timediff.so
+%{_libdir}/collectd/match_value.so
+%{_libdir}/collectd/mbmon.so
+%{_libdir}/collectd/memcachec.so
+%{_libdir}/collectd/memcached.so
+%{_libdir}/collectd/memory.so
+%{_libdir}/collectd/multimeter.so
+%{_libdir}/collectd/mysql.so
+%{_libdir}/collectd/network.so
+%{_libdir}/collectd/nfs.so
+%{_libdir}/collectd/nginx.so
+%{_libdir}/collectd/notify_desktop.so
+%{_libdir}/collectd/notify_email.so
+%{_libdir}/collectd/ntpd.so
+%{_libdir}/collectd/olsrd.so
+%{_libdir}/collectd/openvpn.so
+%{_libdir}/collectd/perl.so
+%{_libdir}/collectd/ping.so
+%{_libdir}/collectd/postgresql.so
+%{_libdir}/collectd/powerdns.so
+%{_libdir}/collectd/processes.so
+%{_libdir}/collectd/protocols.so
+%{_libdir}/collectd/python.so
+%{_libdir}/collectd/rrdcached.so
+%{_libdir}/collectd/rrdtool.so
+%{_libdir}/collectd/sensors.so
+%{_libdir}/collectd/serial.so
+%{_libdir}/collectd/snmp.so
+%{_libdir}/collectd/swap.so
+%{_libdir}/collectd/syslog.so
+%{_libdir}/collectd/table.so
+%{_libdir}/collectd/tail.so
+%{_libdir}/collectd/target_notification.so
+%{_libdir}/collectd/target_replace.so
+%{_libdir}/collectd/target_scale.so
+%{_libdir}/collectd/target_set.so
+%{_libdir}/collectd/tcpconns.so
+%{_libdir}/collectd/teamspeak2.so
+%{_libdir}/collectd/ted.so
+%{_libdir}/collectd/thermal.so
+%{_libdir}/collectd/unixsock.so
+%{_libdir}/collectd/uptime.so
+%{_libdir}/collectd/users.so
+%{_libdir}/collectd/uuid.so
+%{_libdir}/collectd/wireless.so
+%{_libdir}/collectd/vmem.so
+%{_libdir}/collectd/vserver.so
+%{_libdir}/collectd/write_http.so
+%{_libdir}/collectd/curl_xml.so
+%{_libdir}/collectd/target_v5upgrade.so
+%{_libdir}/collectd/threshold.so
+%perl_vendorlib/*
 %dir %{_datadir}/collectd
-%attr(0644,root,root) %{_datadir}/collectd/postgresql_default.conf
-%attr(0644,root,root) %{_datadir}/collectd/types.db
+%{_datadir}/collectd/postgresql_default.conf
+%{_datadir}/collectd/types.db
 %dir /var/lib/%{name}
 %dir /var/run/%{name}
 %dir /var/log/%{name}
-%attr(0644,root,root) %ghost /var/log/%{name}/%{name}.log
+%ghost /var/log/%{name}/%{name}.log
 %{_mandir}/man1/collectd.*
 %{_mandir}/man5/collectd.conf.*
 %{_mandir}/man1/collectdmon.1*
 %{_mandir}/man1/collectd-nagios.1*
+%{_mandir}/man1/collectdctl.1*
 %{_mandir}/man3/Collectd::Unixsock.3pm*
+%{_mandir}/man5/collectd-threshold.5*
 %{_mandir}/man5/collectd-email.5*
 %{_mandir}/man5/collectd-exec.5*
 %{_mandir}/man5/collectd-java.5*
