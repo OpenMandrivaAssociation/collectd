@@ -150,6 +150,7 @@ rm -rf %{buildroot}
 %{_libdir}/collectd/cpu.so
 %{_libdir}/collectd/csv.so
 %{_libdir}/collectd/curl.so
+%{_libdir}/collectd/curl_xml.so
 %{_libdir}/collectd/dbi.so
 %{_libdir}/collectd/df.so
 %{_libdir}/collectd/disk.so
@@ -185,6 +186,7 @@ rm -rf %{buildroot}
 %{_libdir}/collectd/notify_desktop.so
 %{_libdir}/collectd/notify_email.so
 %{_libdir}/collectd/ntpd.so
+%{_libdir}/collectd/nut.so
 %{_libdir}/collectd/olsrd.so
 %{_libdir}/collectd/openvpn.so
 %{_libdir}/collectd/perl.so
@@ -207,21 +209,20 @@ rm -rf %{buildroot}
 %{_libdir}/collectd/target_replace.so
 %{_libdir}/collectd/target_scale.so
 %{_libdir}/collectd/target_set.so
+%{_libdir}/collectd/target_v5upgrade.so
 %{_libdir}/collectd/tcpconns.so
 %{_libdir}/collectd/teamspeak2.so
 %{_libdir}/collectd/ted.so
 %{_libdir}/collectd/thermal.so
+%{_libdir}/collectd/threshold.so
 %{_libdir}/collectd/unixsock.so
 %{_libdir}/collectd/uptime.so
 %{_libdir}/collectd/users.so
 %{_libdir}/collectd/uuid.so
 %{_libdir}/collectd/wireless.so
 %{_libdir}/collectd/vmem.so
-%{_libdir}/collectd/vserver.so
 %{_libdir}/collectd/write_http.so
-%{_libdir}/collectd/curl_xml.so
-%{_libdir}/collectd/target_v5upgrade.so
-%{_libdir}/collectd/threshold.so
+%{_libdir}/collectd/vserver.so
 %perl_vendorlib/*
 %dir %{_datadir}/collectd
 %{_datadir}/collectd/postgresql_default.conf
