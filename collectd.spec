@@ -4,19 +4,19 @@
 
 Summary:	Collects system information in RRD files
 Name:		collectd
-Version:	5.0.0
-Release:	%mkrel 4
+Version:	5.0.1
+Release:	%mkrel 1
 License:	GPLv2+
 Group:		Monitoring
 URL:		http://collectd.org/
-Source0:	http://collectd.org/files/collectd-%{version}.tar.bz2
+Source0:	http://collectd.org/files/collectd-%{version}.tar.gz
 Source1:	%{name}-initscript
 Source2:	%{name}.logrotate
 Patch3:		collectd-4.5.1-perl_fix.diff
+Patch4:		collectd-5.0.1-no-undefined.diff
 Patch101:	collectd-4.10.3-werror.patch
 Patch102:	collectd-4.10.3-lt.patch
 Patch103:	collectd-4.10.1-noowniptc.patch
-Patch104:	collectd-4.10.2-libnotify-0.7.patch
 BuildConflicts:	git
 BuildRequires:	bison
 BuildRequires:	curl-devel
@@ -79,8 +79,8 @@ This package contains the development headers.
 %patch101 -p1
 %patch102 -p1
 %patch103 -p1
-%patch104 -p0
 %patch3 -p0
+%patch4 -p0
 
 %build
 autoreconf -fi
@@ -116,7 +116,8 @@ install -m0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
 touch %{buildroot}/var/log/%{name}/%{name}.log
 
 # cleanup
-rm %{buildroot}%{_libdir}/collectd/*.la
+rm -f %{buildroot}%{_libdir}/collectd/*.*a
+rm -f %{buildroot}%{_libdir}/*.*a
 
 %post
 %create_ghostfile /var/log/%{name}/%{name}.log root root 644
@@ -256,5 +257,3 @@ rm -rf %{buildroot}
 %{_includedir}/collectd/client.h
 %{_includedir}/collectd/lcc_features.h
 %{_libdir}/pkgconfig/libcollectdclient.pc
-%{_libdir}/libcollectdclient.la
-
