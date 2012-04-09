@@ -4,20 +4,20 @@
 
 Summary:	Collects system information in RRD files
 Name:		collectd
-Version:	5.0.1
-Release:	%mkrel 2
+Version:	5.1.0
+Release:	1
 License:	GPLv2+
 Group:		Monitoring
 URL:		http://collectd.org/
-Source0:	http://collectd.org/files/collectd-%{version}.tar.gz
+Source0:	http://collectd.org/files/collectd-%{version}.tar.bz2
 Source1:	%{name}-initscript
 Source2:	%{name}.logrotate
 Patch3:		collectd-4.5.1-perl_fix.diff
-Patch4:		collectd-5.0.1-no-undefined.diff
 Patch101:	collectd-4.10.3-werror.patch
 Patch102:	collectd-4.10.3-lt.patch
 Patch103:	collectd-4.10.1-noowniptc.patch
-BuildConflicts:	git
+Patch104:	collectd-4.10.2-libnotify-0.7.patch
+#BuildConflicts:	git
 BuildRequires:	bison
 BuildRequires:	curl-devel
 BuildRequires:	flex
@@ -25,9 +25,8 @@ BuildRequires:	iptables-devel
 BuildRequires:	libdbi-devel
 BuildRequires:	libesmtp-devel
 BuildRequires:	libgcrypt-devel
-BuildRequires:	libgnutls-devel
-BuildRequires:	libhal-devel
-BuildRequires:	libltdl-devel
+BuildRequires:	pkgconfig(gnutls)
+BuildRequires:	libtool-devel
 BuildRequires:	libnotify-devel
 BuildRequires:	libstatgrab-devel
 BuildRequires:	libtool
@@ -49,7 +48,6 @@ BuildRequires:	iptables-iptc-devel
 BuildRequires:	iptables-ip6tc-devel
 BuildRequires:	iptables-ip4tc-devel
 Requires(pre):	rpm-helper
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 
 %description
 The collectd daemon collects information about the system it is running on and
@@ -77,10 +75,7 @@ This package contains the development headers.
 %prep
 %setup -q
 %patch101 -p1
-%patch102 -p1
-%patch103 -p1
 %patch3 -p0
-%patch4 -p0
 
 %build
 autoreconf -fi
@@ -100,7 +95,6 @@ popd
 %make
 
 %install
-rm -rf %{buildroot}
 
 install -d %{buildroot}%{_sysconfdir}/logrotate.d
 install -d %{buildroot}%{_initrddir}
@@ -116,8 +110,7 @@ install -m0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
 touch %{buildroot}/var/log/%{name}/%{name}.log
 
 # cleanup
-rm -f %{buildroot}%{_libdir}/collectd/*.*a
-rm -f %{buildroot}%{_libdir}/*.*a
+rm %{buildroot}%{_libdir}/collectd/*.la
 
 %post
 %create_ghostfile /var/log/%{name}/%{name}.log root root 644
@@ -125,9 +118,6 @@ rm -f %{buildroot}%{_libdir}/*.*a
 
 %preun
 %_preun_service %{name}
-
-%clean
-rm -rf %{buildroot}
 
 %files
 %defattr(644,root,root,755)
@@ -208,6 +198,11 @@ rm -rf %{buildroot}
 %{_libdir}/collectd/tail.so
 %{_libdir}/collectd/target_notification.so
 %{_libdir}/collectd/target_replace.so
+%{_libdir}/collectd/ethstat.so
+%{_libdir}/collectd/ipvs.so
+%{_libdir}/collectd/md.so
+%{_libdir}/collectd/numa.so
+%{_libdir}/collectd/write_graphite.so
 %{_libdir}/collectd/target_scale.so
 %{_libdir}/collectd/target_set.so
 %{_libdir}/collectd/target_v5upgrade.so
