@@ -1,0 +1,98 @@
+--- configure.in.perl	2010-04-23 17:49:07.000000000 +0200
++++ configure.in	2010-04-23 17:52:24.000000000 +0200
+@@ -2408,7 +2408,7 @@
+ ])
+ 
+ AC_MSG_CHECKING([for perl])
+-perl_interpreter=`which "$perl_interpreter" 2> /dev/null`
++perl_interpreter=`which perl 2> /dev/null`
+ if test -x "$perl_interpreter"
+ then
+ 	AC_MSG_RESULT([yes ($perl_interpreter)])
+@@ -2423,12 +2423,12 @@
+ 	&& test -n "$perl_interpreter"
+ then
+   SAVE_CFLAGS="$CFLAGS"
+-  SAVE_LDFLAGS="$LDFLAGS"
++  SAVE_LIBS="$LIBS"
+ dnl ARCHFLAGS="" -> disable multi -arch on OSX (see Config_heavy.pl:fetch_string)
+   PERL_CFLAGS=`ARCHFLAGS="" $perl_interpreter -MExtUtils::Embed -e ccopts`
+   PERL_LDFLAGS=`ARCHFLAGS="" $perl_interpreter -MExtUtils::Embed -e ldopts`
+   CFLAGS="$CFLAGS $PERL_CFLAGS"
+-  LDFLAGS="$LDFLAGS $PERL_LDFLAGS"
++  LIBS="$LIBS $PERL_LDFLAGS"
+ 
+   AC_CACHE_CHECK([for libperl],
+     [c_cv_have_libperl],
+@@ -2461,7 +2461,7 @@
+   fi
+ 
+   CFLAGS="$SAVE_CFLAGS"
+-  LDFLAGS="$SAVE_LDFLAGS"
++  LIBS="$SAVE_LIBS"
+ else if test -z "$perl_interpreter"; then
+   with_libperl="no (no perl interpreter found)"
+   c_cv_have_libperl="no"
+@@ -2471,9 +2471,9 @@
+ if test "x$with_libperl" = "xyes"
+ then
+ 	SAVE_CFLAGS="$CFLAGS"
+-	SAVE_LDFLAGS="$LDFLAGS"
++	SAVE_LIBSS="$LIBS"
+ 	CFLAGS="$CFLAGS $PERL_CFLAGS"
+-	LDFLAGS="$LDFLAGS $PERL_LDFLAGS"
++	LIBS="$LIBS $PERL_LDFLAGS"
+ 
+ 	AC_CACHE_CHECK([if perl supports ithreads],
+ 		[c_cv_have_perl_ithreads],
+@@ -2500,17 +2500,17 @@
+ 	fi
+ 
+ 	CFLAGS="$SAVE_CFLAGS"
+-	LDFLAGS="$SAVE_LDFLAGS"
++	LIBS="$SAVE_LIBS"
+ fi
+ 
+ if test "x$with_libperl" = "xyes"
+ then
+ 	SAVE_CFLAGS="$CFLAGS"
+-	SAVE_LDFLAGS="$LDFLAGS"
++	SAVE_LIBS="$LIBS"
+ 	# trigger an error if Perl_load_module*() uses __attribute__nonnull__(3)
+ 	# (see issues #41 and #42)
+ 	CFLAGS="$CFLAGS $PERL_CFLAGS -Wall -Werror"
+-	LDFLAGS="$LDFLAGS $PERL_LDFLAGS"
++	LIBS="$LIBS $PERL_LDFLAGS"
+ 
+ 	AC_CACHE_CHECK([for broken Perl_load_module()],
+ 		[c_cv_have_broken_perl_load_module],
+@@ -2534,7 +2534,7 @@
+ 	)
+ 
+ 	CFLAGS="$SAVE_CFLAGS"
+-	LDFLAGS="$SAVE_LDFLAGS"
++	LIBS="$SAVE_LIBS"
+ fi
+ AM_CONDITIONAL(HAVE_BROKEN_PERL_LOAD_MODULE,
+ 		test "x$c_cv_have_broken_perl_load_module" = "xyes")
+@@ -2542,9 +2542,9 @@
+ if test "x$with_libperl" = "xyes"
+ then
+ 	SAVE_CFLAGS="$CFLAGS"
+-	SAVE_LDFLAGS="$LDFLAGS"
++	SAVE_LIBS="$LIBS"
+ 	CFLAGS="$CFLAGS $PERL_CFLAGS"
+-	LDFLAGS="$LDFLAGS $PERL_LDFLAGS"
++	LIBS="$LIBS $PERL_LDFLAGS"
+ 
+ 	AC_CHECK_MEMBER(
+ 		[struct mgvtbl.svt_local],
+@@ -2563,7 +2563,7 @@
+ 	fi
+ 
+ 	CFLAGS="$SAVE_CFLAGS"
+-	LDFLAGS="$SAVE_LDFLAGS"
++	LIBS="$SAVE_LIBS"
+ fi
+ # }}}
+ 

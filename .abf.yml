@@ -1,0 +1,4 @@
+sources:
+  "collectd-5.1.0.tar.bz2:"	77545833b77a03ec02219bfb925e6a1f3463ddef
+  "collectd-initscript:"	eece66aa7da34ceaa134058aa847879a86f98fdb
+  "collectd.logrotate:"	227cb2039f3865ce43ca0d39337908d96b5dbe1d
