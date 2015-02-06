@@ -5,7 +5,7 @@
 Summary:	Collects system information in RRD files
 Name:		collectd
 Version:	5.1.0
-Release:	2
+Release:	3
 License:	GPLv2+
 Group:		Monitoring
 Url:		http://collectd.org/
