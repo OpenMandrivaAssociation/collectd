@@ -1,4 +1,4 @@
-%define major 0
+%define major 1
 %define libname %mklibname collectdclient %{major}
 %define devname %mklibname -d collectdclient
 
@@ -51,10 +51,10 @@ then be used to generate graphs of the collected data.
 %defattr(644,root,root,755)
 %doc AUTHORS COPYING README ChangeLog TODO
 %config(noreplace) %{_sysconfdir}/collectd.conf
-%config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
 %{_unitdir}/%{name}.service
 %{_bindir}/collectd-nagios
 %{_bindir}/collectdctl
+%{_bindir}/collectd-tg
 %{_sbindir}/collectd
 %{_sbindir}/collectdmon
 %dir %{_libdir}/collectd
@@ -68,6 +68,7 @@ then be used to generate graphs of the collected data.
 %dir /var/log/%{name}
 %ghost /var/log/%{name}/%{name}.log
 %{_mandir}/man1/collectd.*
+%{_mandir}/man1/collectd-tg.*
 %{_mandir}/man5/collectd.conf.*
 %{_mandir}/man1/collectdmon.1*
 %{_mandir}/man1/collectd-nagios.1*
@@ -112,6 +113,8 @@ This package contains the development headers.
 %{_libdir}/libcollectdclient.so
 %{_includedir}/collectd/client.h
 %{_includedir}/collectd/lcc_features.h
+%{_includedir}/collectd/network.h
+%{_includedir}/collectd/network_buffer.h
 %{_libdir}/pkgconfig/libcollectdclient.pc
 
 #----------------------------------------------------------------------------
@@ -139,8 +142,6 @@ popd
 %make
 
 %install
-install -d %{buildroot}%{_sysconfdir}/logrotate.d
-install -d %{buildroot}%{_initrddir}
 install -d %{buildroot}/var/lib/%{name}
 install -d %{buildroot}/var/run/%{name}
 install -d %{buildroot}/var/log/%{name}
