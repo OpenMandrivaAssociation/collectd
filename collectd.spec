@@ -4,19 +4,14 @@
 
 Summary:	Collects system information in RRD files
 Name:		collectd
-Version:	5.1.0
-Release:	3
+Version:	5.5.0
+Release:	1
 License:	GPLv2+
 Group:		Monitoring
 Url:		http://collectd.org/
 Source0:	http://collectd.org/files/collectd-%{version}.tar.bz2
-Source1:	%{name}-initscript
-Source2:	%{name}.logrotate
-Patch3:		collectd-4.5.1-perl_fix.diff
-Patch101:	collectd-4.10.3-werror.patch
-Patch102:	collectd-4.10.3-lt.patch
-Patch103:	collectd-4.10.1-noowniptc.patch
-Patch104:	collectd-4.10.2-libnotify-0.7.patch
+Source1:	%{name}.service
+Patch101:	collectd-5.5.0-werror.patch
 BuildRequires:	bison
 BuildRequires:	flex
 BuildRequires:	libdbi-devel
@@ -57,7 +52,7 @@ then be used to generate graphs of the collected data.
 %doc AUTHORS COPYING README ChangeLog TODO
 %config(noreplace) %{_sysconfdir}/collectd.conf
 %config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
-%{_initrddir}/%{name}
+%{_unitdir}/%{name}.service
 %{_bindir}/collectd-nagios
 %{_bindir}/collectdctl
 %{_sbindir}/collectd
@@ -123,8 +118,7 @@ This package contains the development headers.
 
 %prep
 %setup -q
-%patch101 -p1
-%patch3 -p0
+%apply_patches
 
 %build
 autoreconf -fi
@@ -153,8 +147,7 @@ install -d %{buildroot}/var/log/%{name}
 
 %makeinstall_std LIBLTDL=%{_libdir}/libltdl.la
 
-install -m0755 %{SOURCE1} %{buildroot}%{_initrddir}/%{name}
-install -m0644 %{SOURCE2} %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
+install -Dm755 %{SOURCE1} %{buildroot}%{_unitdir}/%{name}.service
 
 touch %{buildroot}/var/log/%{name}/%{name}.log
 
