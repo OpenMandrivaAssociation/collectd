@@ -8,7 +8,7 @@ Version:	5.5.0
 Release:	1
 License:	GPLv2+
 Group:		Monitoring
-Url:		http://collectd.org/
+Url:		https://collectd.org/
 Source0:	http://collectd.org/files/collectd-%{version}.tar.bz2
 Source1:	%{name}.service
 Patch101:	collectd-5.5.0-werror.patch
