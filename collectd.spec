@@ -12,6 +12,11 @@ Url:		https://collectd.org/
 Source0:	http://collectd.org/files/collectd-%{version}.tar.bz2
 Source1:	%{name}.service
 Patch101:	collectd-5.5.0-werror.patch
+BuildRequires:	autoconf
+BuildRequires:	automake
+BuildRequires:	libtool-base
+BuildRequires:	slibtool
+BuildRequires:	make
 BuildRequires:	bison
 BuildRequires:	flex
 BuildRequires:	libdbi-devel
